@@ -1,0 +1,6 @@
+.DS_Store
+Sensfrx@12
+Sensfrx@12.pub
+eval "$(ssh-agent -s)"
+eval "$(ssh-agent -s)".pub
+
