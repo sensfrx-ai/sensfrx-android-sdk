@@ -248,18 +248,38 @@ Sensfrx.trackAppEvent("OPEN") // or FOREGROUND / BACKGROUND / CLOSED
 
 ---
 
-## 🧠 Backend Integration (For Backend Developers)
+## 🔐 Backend Integration (For Backend Developers)
+
+After you've secured the app and tracked user behaviors, you’ll need to handle user authentication on the backend. Sensfrx provides helper functions to collect tokens and fingerprints which you can send to your server during login and registration events.
 
 ### 🔑 Login Event
 
-**Endpoint:** `POST https://m.sensfrx.ai/v1/login/android`
+## Overview
 
-**Headers:**
-- `Authorization: Basic base64(api_key:secret)`
-- `Content-Type: application/json`
-- `package: your.package.name`
+Use this endpoint to report login events (`login_failed` or `login_succeeded`) to Sensfrx for fraud analysis and risk scoring.
 
-**Payload:**
+---
+
+## 📍 Endpoint
+
+POST /v1/login/android
+
+Host: https://m.sensfrx.ai
+
+---
+
+## 📄 Headers
+
+| Key             | Value                       |
+|----------------|-----------------------------|
+| Authorization  | `Basic <base64(<api_key>:<secret>)>` |
+| Content-Type   | `application/json`          |
+| package   | `<package name>`          |
+
+---
+
+## 📦 Request Body
+
 ```json
 {
   "ev": "login_succeeded",
@@ -272,14 +292,70 @@ Sensfrx.trackAppEvent("OPEN") // or FOREGROUND / BACKGROUND / CLOSED
   }
 }
 ```
+## Sample PHP Implementation
 
----
+```
+<?php
+
+$endpoint = "https://m.sensfrx.ai/v1/login/android";
+$auth = base64_encode("your_api_key:your_secret");
+
+$data = [
+    "ev" => "login_succeeded",
+    "uID" => "15",
+    "dID" => "REQUEST_TOKEN_FROM_SDK",
+    "d_f" => "DEVICE_FINGERPRINTING_FROM_SDK",
+    "uex" => [
+        "email" => "admin15@yopmail.com",
+        "username" => "admin15"
+    ]
+];
+
+$headers = [
+    "Authorization: Basic $auth",
+    "Content-Type: application/json",
+    "package: package_name"
+];
+
+$ch = curl_init($endpoint);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+$response = curl_exec($ch);
+curl_close($ch);
+
+echo $response;
+?>
+```
 
 ### 📝 Registration Event
 
-**Endpoint:** `POST https://m.sensfrx.ai/v1/register/android`
+## Overview
 
-**Payload:**
+Use this endpoint to report Registration events (`register_failed` or `register_succeeded`) to Sensfrx for fraud analysis and risk scoring.
+
+---
+
+## 📍 Endpoint
+
+POST /v1/register/android
+
+Host: https://m.sensfrx.ai
+
+---
+
+## 📄 Headers
+
+| Key             | Value                       |
+|----------------|-----------------------------|
+| Authorization  | `Basic <base64(<api_key>:<secret>)>` |
+| Content-Type   | `application/json`          |
+| package   | `<package name>`          |
+
+---
+
+## 📦 Request Body
+
 ```json
 {
   "ev": "register_succeeded",
@@ -289,38 +365,45 @@ Sensfrx.trackAppEvent("OPEN") // or FOREGROUND / BACKGROUND / CLOSED
     "uID": "USER_ID",
     "email": "user@example.com",
     "name": "username_here",
-    "phone": "phone_here"
+    "phone": "phone_here",
   }
 }
 ```
+## Sample PHP Implementation
 
----
+```
+<?php
 
-### 📊 Analytics Dashboard  
-Access the Sensfrx Dashboard to review fraud signals, behavior patterns, and real-time transaction intelligence. All collected signals and flagged activities are viewable through intuitive charts and logs.
+$endpoint = "https://m.sensfrx.ai/v1/register/android";
+$auth = base64_encode("your_api_key:your_secret");
 
-🔗 [Go to Dashboard](https://sensfrx.ai)
+$data = [
+    "ev" => "register_succeeded",
+    "dID" => "REQUEST_TOKEN_FROM_SDK",
+    "d_f" => "DEVICE_FINGERPRINTING_FROM_SDK",
+    "uex" => [
+        "uID" => "15",
+        "email" => "admin15@yopmail.com",
+        "name" => "admin15"
+    ]
+];
 
----
+$headers = [
+    "Authorization: Basic $auth",
+    "Content-Type: application/json",
+    "package: package_name"
+];
 
-## 🧩 Error Handling
+$ch = curl_init($endpoint);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+$response = curl_exec($ch);
+curl_close($ch);
 
-- ✅ Verify internet access and connectivity  
-- 🔐 Validate Property Secret and API credentials  
-- 🐛 Use **Logcat** for debugging any SDK issues  
-
----
-
-## 📦 SDK Publication Details
-
-| Detail       | Value                  |
-|--------------|------------------------|
-| Group ID     | `ai.sensfrx`           |
-| Artifact ID  | `sensfrx-sdk`          |
-| Version      | `1.0.3`                |
-| Repository   | Maven Central          |
-| License      | Apache License 2.0     |
-
+echo $response;
+?>
+```
 ---
 
 ## 📬 Support
