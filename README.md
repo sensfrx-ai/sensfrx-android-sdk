@@ -326,7 +326,6 @@ Access the Sensfrx Dashboard to review fraud signals, behavior patterns, and rea
 ## 📬 Support
 
 📧 [info@sensfrx.com](mailto:info@sensfrx.com)  
-🛠 [Developer Portal](https://sensfrx.ai)
 
 ---
 
