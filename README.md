@@ -20,7 +20,7 @@ With support for a wide range of Android devices (Android 9+), Sensfrx SDK offer
 
 ---
 
-## Installation
+## Installation (Mobile Developer)
 
 ### Add SDK Dependency
 Add the following dependency in your **app-level** `build.gradle`:
@@ -62,14 +62,14 @@ allprojects {
 
 ---
 
-## Configuration
+## Configuration (Mobile Developer)
 
-### Step 3: Initialize the SDK
+### Initialize the SDK
 
 In your application's main class (subclass of `Application`), initialize Sensfrx:
 
 To Get Your Property Secret
-- Register on the [Sensfrx Dashboard](https://sensfrx.ai).
+- Register on the [Sensfrx Dashboard](https://client.sensfrx.ai/).
 - After registration, log in to your dashboard.
 - Generate your Property ID and Property Secret from the dashboard. These credentials are required to configure the SDK in your app.
 
@@ -103,12 +103,12 @@ class MyApp : Application() {
 }
 ```
 
-Make sure to replace `3764534847133568:VGF9TR2qfOnGCEghl` with the Property Secret you obtained from the [Sensfrx Dashboard](https://sensfrx.ai).
+Make sure to replace `3764534847133568:VGF9TR2qfOnGCEghl` with the Property Secret you obtained from the [Sensfrx Dashboard](https://client.sensfrx.ai/).
 
 ---
 
 ## Event Tracking
-Sensfrx provides multiple event tracking mechanisms:
+Sensfrx provides multiple event-tracking mechanisms:
 
 
 ### Click Events
@@ -130,63 +130,6 @@ For Activity click events:
 // Add this line in your Fragment onCreateView 
 Sensfrx.trackClickEvent(view.getRootView());
 ```
-
-### Login Event
-The Login Event is critical for tracking and protecting user logins. By monitoring login attempts and associated behaviors, Sensfrx can detect abnormal patterns that may indicate fraud, such as multiple failed login attempts, IP location changes, and device fingerprint mismatches.
-
-Benefits of Tracking Login Events:
-
-- Account Takeover (ATO) Detection: Identifies fraudulent login attempts and potential account takeovers.
-- Fraud Prevention: Detects patterns indicative of credential stuffing, password spraying, or other automated attack techniques.
-- Risk Analysis: Provides actionable insights into login behaviors and risks, improving security measures.
-
-Implementation Example
-
-#### Java / Kotlin
-```java/Kotlin
-
-// Create a login request and send it to your backend
-val jsonObject = JsonObject().apply {
-    addProperty("email", email)
-    addProperty("password", password)
-
-   // Send these below property along with your login request
-    addProperty("package", requireContext().packageName)
-    addProperty("request_token", Sensfrx.getRequestTokenForLogin(latitude, longitude))
-    addProperty("d_f", Sensfrx.getDeviceFingerprints(latitude, longitude))
-}
-```
-
-Fore more details checkout the demo application or connect with our [support team](https://sensfrx.ai).
-
-### Registration Event Tracking
-The Registration Event helps track new user registrations. This is essential for preventing fraudulent account creation, such as fake registrations or bot-driven sign-ups. By tracking registration behaviors, Sensfrx can detect suspicious activities like repeated sign-ups from the same IP address, unusual device fingerprints, or unverified user information.
-
-Benefits of Tracking Registration Events:
-- Fake Registration Detection: Identifies automated or bot-driven sign-ups that don't match typical user behavior.
-- Fraud Prevention: Prevents fake account creation by detecting patterns such as multiple sign-ups with the same email or device fingerprint.
-- Risk Analysis: Provides insights into registration behaviors, helping to prevent fraud and improve account security from the start.
-
-Implementation Example
-
-#### Java / Kotlin
-```java/Kotlin
-val jsonObject = JsonObject().apply {
-    val rfsObject = JsonObject().apply {
-        addProperty("name", name)
-        addProperty("email", email)
-        addProperty("phone", mobile)
-        addProperty("password", password)
-    }
-
-   // Send these below property along with your login request
-    add("rfs", rfsObject)
-    addProperty("package", requireContext().packageName)
-    addProperty("request_token", Sensfrx.getRequestTokenForLogin(latitude, longitude))
-    addProperty("d_f", Sensfrx.getDeviceFingerprints(latitude, longitude))
-}
-```
-Fore more details checkout the demo application or connect with our [support team](https://sensfrx.ai).
 
 
 ### Transaction Event Tracking
@@ -339,14 +282,167 @@ Supported App States
 - CLOSED: Tracks when the app is fully closed.
 
 
-### Screen Change Events
-Tracking screen transitions allows you to monitor how users navigate through your app, helping you understand their behavior and detect potential fraud. Sensfrx automatically tracks screen changes and provides valuable insights into user journeys, such as how many screens a user visits and how long they stay on each.
-Capture screen transitions:
+---
 
-- User Behavior Analysis: Understanding user navigation patterns allows us to identify normal and abnormal behavior, improving user experience and fraud detection.
-- Fraud Detection: Unusual screen change patterns, such as rapid or unexpected transitions, could indicate suspicious activity or attempts to bypass security.
+## 🔐 Backend Integration (For Backend Developers)
+
+After you've secured the app and tracked user behaviors, you’ll need to handle user authentication on the backend. Sensfrx provides helper functions to collect tokens and fingerprints which you can send to your server during login and registration events.
+
+### 🔑 Login Event
+
+## Overview
+
+Use this endpoint to report login events (`login_failed` or `login_succeeded`) to Sensfrx for fraud analysis and risk scoring.
 
 ---
+
+## 📍 Endpoint
+
+POST /v1/login/android
+
+Host: https://m.sensfrx.ai
+
+---
+
+## 📄 Headers
+
+| Key             | Value                       |
+|----------------|-----------------------------|
+| Authorization  | `Basic <base64(<api_key>:<secret>)>` |
+| Content-Type   | `application/json`          |
+| package   | `<package name>`          |
+
+---
+
+## 📦 Request Body
+
+```json
+{
+  "ev": "login_succeeded",
+  "uID": "USER_ID",
+  "dID": "REQUEST_TOKEN_FROM_SDK",
+  "d_f": "DEVICE_FINGERPRINTING_FROM_SDK",
+  "uex": {
+    "email": "user@example.com",
+    "username": "username_here"
+  }
+}
+```
+## Sample PHP Implementation
+
+```
+<?php
+
+$endpoint = "https://m.sensfrx.ai/v1/login/android";
+$auth = base64_encode("your_api_key:your_secret");
+
+$data = [
+    "ev" => "login_succeeded",
+    "uID" => "15",
+    "dID" => "REQUEST_TOKEN_FROM_SDK",
+    "d_f" => "DEVICE_FINGERPRINTING_FROM_SDK",
+    "uex" => [
+        "email" => "admin15@yopmail.com",
+        "username" => "admin15"
+    ]
+];
+
+$headers = [
+    "Authorization: Basic $auth",
+    "Content-Type: application/json",
+    "package: package_name"
+];
+
+$ch = curl_init($endpoint);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+$response = curl_exec($ch);
+curl_close($ch);
+
+echo $response;
+?>
+```
+
+### 📝 Registration Event
+
+## Overview
+
+Use this endpoint to report Registration events (`register_failed` or `register_succeeded`) to Sensfrx for fraud analysis and risk scoring.
+
+---
+
+## 📍 Endpoint
+
+POST /v1/register/android
+
+Host: https://m.sensfrx.ai
+
+---
+
+## 📄 Headers
+
+| Key             | Value                       |
+|----------------|-----------------------------|
+| Authorization  | `Basic <base64(<api_key>:<secret>)>` |
+| Content-Type   | `application/json`          |
+| package   | `<package name>`          |
+
+---
+
+## 📦 Request Body
+
+```json
+{
+  "ev": "register_succeeded",
+  "dID": "REQUEST_TOKEN_FROM_SDK",
+  "d_f": "DEVICE_FINGERPRINTING_FROM_SDK",
+  "rfs": {
+    "uID": "USER_ID",
+    "email": "user@example.com",
+    "name": "username_here",
+    "phone": "phone_here",
+  }
+}
+```
+## Sample PHP Implementation
+
+```
+<?php
+
+$endpoint = "https://m.sensfrx.ai/v1/register/android";
+$auth = base64_encode("your_api_key:your_secret");
+
+$data = [
+    "ev" => "register_succeeded",
+    "dID" => "REQUEST_TOKEN_FROM_SDK",
+    "d_f" => "DEVICE_FINGERPRINTING_FROM_SDK",
+    "uex" => [
+        "uID" => "15",
+        "email" => "admin15@yopmail.com",
+        "name" => "admin15"
+    ]
+];
+
+$headers = [
+    "Authorization: Basic $auth",
+    "Content-Type: application/json",
+    "package: package_name"
+];
+
+$ch = curl_init($endpoint);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+$response = curl_exec($ch);
+curl_close($ch);
+
+echo $response;
+?>
+```
+
+
+Fore more details checkout the demo application or connect with our [support team](https://sensfrx.ai).
 
 ## Error Handling
 To ensure smooth SDK integration, consider the following common issues:
